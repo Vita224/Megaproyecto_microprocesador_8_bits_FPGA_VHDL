@@ -1,42 +1,46 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
-  language:     "VHDL"  # other examples include Verilog, SystemVerilog, Amaranth, etc
+  title:        "Megaproyecto_microprocesador_8_bits_FPGA_VHDL"      # Project title
+  author:       "Vitalino Guerra y Joshua Cotuc"      # Your name
+  discord:      "Vita224"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
+  description:  "Microprocesador_8_bits"      # One line description of what your project does
+  language:     "VHDL" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
-
-  # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
-  #
-  # WARNING: VHDL support in Tiny Tapeout is experimental. The template may get changes during
-  #          the shuttle and VHDL support may be dropped for future shuttles if we see low usage.
-  source_files:
-    - "project.vhdl"
-
+  top_module:  "tt_um_Vita224_top"
+  
+  # List your project's source files here. Source files must be in ./src and you must list each source file separately, one per line:
+  source_files:        
+    - "alu.vhd"
+    - "control_unit.vhd"
+    - "cpu.vhd"
+    - "debounce_v1.vhd"
+    - "mar.vhd"
+    - "mem.vhd"
+    - "pc.vhd"
+    - "Receiver_RxD.vhd"
+    - "reg.vhd"
+    - "tt_um_Vita224_top.vhd"
+    
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
+  ui[0]: "clock_in"
+  ui[1]: "reset"
+  ui[2]: "program_selector"
+  ui[3]: "RxD"
   ui[4]: ""
   ui[5]: ""
   ui[6]: ""
   ui[7]: ""
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
+  uo[0]: "Anode_Activate"
+  uo[1]: "LED_out"
   uo[2]: ""
   uo[3]: ""
   uo[4]: ""
