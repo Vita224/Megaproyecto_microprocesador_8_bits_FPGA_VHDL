@@ -4,11 +4,11 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity pc is 
     port(
-        clock: in STD_LOGIC; -- Señal de reloj
-        reset: in STD_LOGIC; -- Señal de reinicio
-        en: in STD_LOGIC; -- Señal de habilitación del contador
-        oe: in STD_LOGIC; -- Señal de habilitación de la salida
-        ld: in STD_LOGIC; -- Señal de carga
+        clock: in STD_LOGIC; -- SeÃ±al de reloj
+        reset: in STD_LOGIC; -- SeÃ±al de reinicio
+        en: in STD_LOGIC; -- SeÃ±al de habilitaciÃ³n del contador
+        oe: in STD_LOGIC; -- SeÃ±al de habilitaciÃ³n de la salida
+        ld: in STD_LOGIC; -- SeÃ±al de carga
         input: in STD_LOGIC_VECTOR(3 downto 0); -- Entrada de datos para carga
         output: out STD_LOGIC_VECTOR(3 downto 0) -- Salida del contador
     );
@@ -16,7 +16,7 @@ end entity;
 
 -- Arquitectura -- 
 architecture behave of pc is
-    signal count: STD_LOGIC_VECTOR(3 downto 0) := "0000"; -- Declara una señal count de 4 bits que actúa como el contador principal.
+    signal count: STD_LOGIC_VECTOR(3 downto 0) := "0000"; -- Declara una senal count de 4 bits que actua como el contador principal.
 	
 begin
     process(clock, reset)
