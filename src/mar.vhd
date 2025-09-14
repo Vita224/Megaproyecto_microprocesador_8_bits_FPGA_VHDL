@@ -4,10 +4,10 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity mar is 
     port(
-        clock: in STD_LOGIC; -- Señal de reloj de entrada
-        reset: in STD_LOGIC; -- Señal de reset
-        load: in STD_LOGIC; -- Señal de carga
-        input: in STD_LOGIC_VECTOR(3 downto 0); -- Entrada de 4 bits que representa la dirección de memoria a almacenar
+        clock: in STD_LOGIC; -- Senal de reloj de entrada
+        reset: in STD_LOGIC; -- Senal de reset
+        load: in STD_LOGIC; -- Senal de carga
+        input: in STD_LOGIC_VECTOR(3 downto 0); -- Entrada de 4 bits que representa la direccion de memoria a almacenar
         output: out STD_LOGIC_VECTOR(3 downto 0) -- Salida de 4 bits que refleja el valor actualmente almacenado en el registro
     );
 end entity;
