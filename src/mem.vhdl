@@ -1,6 +1,5 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity mem is
@@ -71,7 +70,7 @@ begin
         end if;
     end process;
 
-    -- Maquina de estados para cargar 16 bytes + flag + fin
+    -- Máquina de estados para cargar 16 bytes + flag + fin
     process(clock, reset)
     begin
         if reset = '1' then
@@ -120,6 +119,7 @@ begin
             if load = '1' then
                 mem_data(to_integer(unsigned(addr_in))) <= data_in;
             end if;
+            
         end if;
     end process;
 
