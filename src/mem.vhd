@@ -17,7 +17,7 @@ entity mem is
         program_ready : out STD_LOGIC
     );
 end mem;
- 
+
 architecture Behavioral of mem is
 
     type memory_array is array (0 to 15) of STD_LOGIC_VECTOR(7 downto 0);
@@ -71,7 +71,7 @@ begin
         end if;
     end process;
 
-    -- Máquina de estados para cargar 16 bytes + flag + fin
+    -- Maquina de estados para cargar 16 bytes + flag + fin
     process(clock, reset)
     begin
         if reset = '1' then
