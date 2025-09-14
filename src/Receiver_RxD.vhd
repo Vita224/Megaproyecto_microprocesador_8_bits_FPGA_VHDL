@@ -71,7 +71,7 @@ begin
                 RxD_done_int <= '0';
 
             elsif sample_tick = '1' then
-                RxD_done_int <= '0'; -- limpiar la señal al comienzo del ciclo
+                RxD_done_int <= '0'; -- limpiar la senal al comienzo del ciclo
 
                 case state is
                     when idle =>
@@ -110,7 +110,7 @@ begin
                         if sample_count = oversample - 1 then
                             state <= idle;
                             RxData <= data_reg;
-                            RxD_done_int <= '1';  -- <<== Aquí marcamos que se recibió
+                            RxD_done_int <= '1';  -- <<== Aqui marcamos que se recibio
                             sample_count <= 0;
                         else
                             sample_count <= sample_count + 1;
@@ -121,3 +121,4 @@ begin
     end process;
 
 end Behavioral;
+
