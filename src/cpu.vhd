@@ -85,7 +85,7 @@ architecture behave of cpu is
         );
     end component;
 
-    -- SEÑALES INTERNAS
+    -- SEÃ‘ALES INTERNAS
     signal main_bus              : STD_LOGIC_VECTOR(7 downto 0);
     signal cu_out_sig            : STD_LOGIC_VECTOR(16 downto 0);
     signal instr_out_sig         : STD_LOGIC_VECTOR(7 downto 0);
@@ -106,7 +106,7 @@ architecture behave of cpu is
     signal reg_a_alu      : STD_LOGIC_VECTOR(7 downto 0);
     signal reg_b_alu      : STD_LOGIC_VECTOR(7 downto 0);
 
-    -- Señales para modo lento y programa cargado
+    -- SeÃ±ales para modo lento y programa cargado
     signal slow_mode_sig     : STD_LOGIC;
     signal program_ready_sig : STD_LOGIC;
 
@@ -137,7 +137,7 @@ begin
         end if;
     end process;
 
-    -- Selección de reloj
+    -- SelecciÃ³n de reloj
     cpu_clk <= slow_clk when slow_mode_sig = '1' else clock;
 
     --------------------------------------------------------------------------
@@ -237,7 +237,7 @@ begin
     instr_out       <= instr_out_sig(7 downto 4);
     main_bus(3 downto 0) <= instr_out_sig(3 downto 0) when instr_oe_sig = '1' else (others => 'Z');
 
-    -- Señales de control
+    -- Senales de control
     pc_en_sig     <= cu_out_sig(11);
     pc_ld_sig     <= cu_out_sig(10);
     pc_oe_sig     <= cu_out_sig(9);
