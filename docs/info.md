@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+Se tiene un microprocesador de 8 bits que realiza sumas y restas.
 
 ## How to test
 
-Explain how to use your project
+Se ingresan valores utilizando la interfaz creada en python.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Se utiliza un cable para la comunicación serial entre la PC y el FPGA.
