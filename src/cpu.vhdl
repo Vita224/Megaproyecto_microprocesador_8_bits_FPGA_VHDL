@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity cpu is 
     port(
@@ -110,8 +109,10 @@ architecture behave of cpu is
     signal slow_mode_sig     : STD_LOGIC;
     signal program_ready_sig : STD_LOGIC;
 
-    -- Divisor de reloj
-    signal slow_counter : integer := 0;
+    -- Divisor de reloj: 22 bits permiten contar hasta > 2_999_999
+    constant SLOW_WIDTH : natural := 22;
+    constant SLOW_MAX   : unsigned(SLOW_WIDTH-1 downto 0) := to_unsigned(2999999, SLOW_WIDTH);
+    signal slow_counter : unsigned(SLOW_WIDTH-1 downto 0) := (others => '0');
     signal slow_clk     : STD_LOGIC := '0';
     signal cpu_clk      : STD_LOGIC;
 
@@ -121,15 +122,15 @@ begin
     process(clock, reset)
     begin
         if reset = '1' then
-            slow_counter <= 0;
+            slow_counter <= (others => '0');
             slow_clk     <= '0';
         elsif rising_edge(clock) then
             if slow_mode_sig = '1' then
-                if slow_counter = 2_999_999 then
-                    slow_counter <= 0;
+                if slow_counter = SLOW_MAX then
+                    slow_counter <= (others => '0');
                     slow_clk     <= not slow_clk;
                 else
-                    slow_counter <= slow_counter + 1;
+                    slow_counter <= slow_counter + to_unsigned(1, SLOW_WIDTH);
                 end if;
             else
                 slow_clk <= clock;
@@ -237,7 +238,7 @@ begin
     instr_out       <= instr_out_sig(7 downto 4);
     main_bus(3 downto 0) <= instr_out_sig(3 downto 0) when instr_oe_sig = '1' else (others => 'Z');
 
-    -- Senales de control
+    -- Señales de control
     pc_en_sig     <= cu_out_sig(11);
     pc_ld_sig     <= cu_out_sig(10);
     pc_oe_sig     <= cu_out_sig(9);
