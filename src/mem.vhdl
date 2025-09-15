@@ -37,14 +37,15 @@ architecture Behavioral of mem is
     signal RxD_done_sync : STD_LOGIC_VECTOR(1 downto 0) := "00";
     signal RxD_done_rise : STD_LOGIC := '0';
 
-    -- Estados para carga UART
     type state_type is (IDLE, LOAD_DATA, LOAD_FLAG, WAIT_END);
     signal state : state_type := IDLE;
     signal byte_counter : integer range 0 to 15 := 0;
 
-    -- Registros de salida
     signal slow_mode_reg     : STD_LOGIC := '0';
     signal program_ready_reg : STD_LOGIC := '0';
+
+    -- salida interna siempre conducida
+    signal mem_data_out : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
 
 begin
 
@@ -57,7 +58,6 @@ begin
             RxD_done => RxD_done
         );
 
-    -- Flanco de subida de RxD_done
     process(clock)
     begin
         if rising_edge(clock) then
@@ -70,7 +70,6 @@ begin
         end if;
     end process;
 
-    -- Máquina de estados para cargar 16 bytes + flag + fin
     process(clock, reset)
     begin
         if reset = '1' then
@@ -79,7 +78,6 @@ begin
             state             <= IDLE;
             slow_mode_reg     <= '0';
             program_ready_reg <= '0';
-
         elsif rising_edge(clock) then
             if RxD_done_rise = '1' then
                 case state is
@@ -115,16 +113,14 @@ begin
                 end case;
             end if;
 
-            -- Escritura desde CPU (memoria normal)
             if load = '1' then
                 mem_data(to_integer(unsigned(addr_in))) <= data_in;
             end if;
-            
         end if;
     end process;
 
-    -- Lectura hacia CPU
-    data_out <= mem_data(to_integer(unsigned(addr_in))) when oe = '1' else (others => 'Z');
+    mem_data_out <= mem_data(to_integer(unsigned(addr_in)));
+    data_out <= mem_data_out;  -- siempre conducido
 
     slow_mode     <= slow_mode_reg;
     program_ready <= program_ready_reg;
