@@ -27,7 +27,7 @@ begin
         end if;
     end process;
 
-    -- Salidas siempre conducidas. El CPU decide vía señales de control cuál usar.
+    -- Salidas siempre conducidas. El CPU decide via señales de control cual usar.
     output <= stored_value;
     output_alu <= stored_value;
 end behave;
