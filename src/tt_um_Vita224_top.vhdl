@@ -1,31 +1,30 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity tt_um_Vita224_top is
     port(
-        clock_in : in std_logic;
-        reset : in std_logic;
-        program_selector : in std_logic_vector(1 downto 0);
-        Anode_Activate : out std_logic_vector(3 downto 0);
-        LED_out : out std_logic_vector(6 downto 0);
-        RxD: in STD_LOGIC
+        clock_in         : in  std_logic;
+        reset            : in  std_logic;
+        program_selector : in  std_logic_vector(1 downto 0);
+        Anode_Activate   : out std_logic_vector(3 downto 0);
+        LED_out          : out std_logic_vector(6 downto 0);
+        RxD              : in  std_logic
     );
 end tt_um_Vita224_top;
 
 architecture Behavioral of tt_um_Vita224_top is
-    signal cpu_op : std_logic_vector(7 downto 0);
-    signal refresh_counter : std_logic_vector(19 downto 0) := (others => '0');
-    signal LED_BCD : std_logic_vector(3 downto 0);
-    signal LED_activating_counter : std_logic_vector(1 downto 0);
+    signal cpu_op                : std_logic_vector(7 downto 0);
+    signal refresh_counter       : unsigned(19 downto 0) := (others => '0');
+    signal LED_BCD               : std_logic_vector(3 downto 0);
+    signal LED_activating_counter: std_logic_vector(1 downto 0);
 
     component cpu is
         port(
-            clock : in std_logic;
-            reset : in std_logic;
-            RxD: in STD_LOGIC;
-            op: out STD_LOGIC_VECTOR(7 downto 0)
+            clock : in  std_logic;
+            reset : in  std_logic;
+            RxD   : in  std_logic;
+            op    : out std_logic_vector(7 downto 0)
         );
     end component;
 
@@ -34,8 +33,8 @@ begin
         port map(
             clock => clock_in,
             reset => reset,
-            RxD => RxD,
-            op => cpu_op
+            RxD   => RxD,
+            op    => cpu_op
         );
 
     process(clock_in)
@@ -45,7 +44,7 @@ begin
         end if;
     end process;
 
-    LED_activating_counter <= refresh_counter(19 downto 18);
+    LED_activating_counter <= std_logic_vector(refresh_counter(19 downto 18));
 
     process(LED_activating_counter)
     begin
