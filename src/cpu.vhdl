@@ -83,7 +83,7 @@ architecture behave of cpu is
         );
     end component;
 
-    -- SEnALES INTERNAS
+    -- SENALES INTERNAS
     signal main_bus              : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
     signal cu_out_sig            : STD_LOGIC_VECTOR(16 downto 0);
     signal instr_out_sig         : STD_LOGIC_VECTOR(7 downto 0);
@@ -108,10 +108,10 @@ architecture behave of cpu is
     signal pc_out         : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
     signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
 
-    -- Señal nueva: salida de la ALU (antes estaba abierta)
+    -- Senal nueva: salida de la ALU (antes estaba abierta)
     signal alu_out        : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
 
-    -- Señales para modo lento y programa cargado
+    -- Senales para modo lento y programa cargado
     signal slow_mode_sig     : STD_LOGIC;
     signal program_ready_sig : STD_LOGIC;
 
@@ -144,7 +144,7 @@ begin
         end if;
     end process;
 
-    -- Selección de reloj
+    -- Seleccion de reloj
     cpu_clk <= slow_clk when slow_mode_sig = '1' else clock;
 
     --------------------------------------------------------------------------
