@@ -19,7 +19,7 @@ project:
     - "mar.vhdl"
     - "mem.vhdl"
     - "pc.vhdl"
-    - "receiver_RxD.vhdl"
+    - "receiver_rxd.vhdl"
     - "reg.vhdl"
     - "tt_um_Vita224_top.vhdl"
 
