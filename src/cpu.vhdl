@@ -13,7 +13,6 @@ end entity;
 
 architecture behave of cpu is
 
-    -- COMPONENTES
     component pc is
         port(
             clock  : in  STD_LOGIC;
@@ -84,8 +83,8 @@ architecture behave of cpu is
         );
     end component;
 
-    -- SEÑALES INTERNAS
-    signal main_bus              : STD_LOGIC_VECTOR(7 downto 0);
+    -- SEnALES INTERNAS
+    signal main_bus              : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
     signal cu_out_sig            : STD_LOGIC_VECTOR(16 downto 0);
     signal instr_out_sig         : STD_LOGIC_VECTOR(7 downto 0);
     signal instr_out             : STD_LOGIC_VECTOR(3 downto 0);
@@ -101,9 +100,16 @@ architecture behave of cpu is
 
     signal mar_mem_sig    : STD_LOGIC_VECTOR(3 downto 0);
     signal mem_in_bus     : STD_LOGIC_VECTOR(7 downto 0);
-    signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0);
-    signal reg_a_alu      : STD_LOGIC_VECTOR(7 downto 0);
-    signal reg_b_alu      : STD_LOGIC_VECTOR(7 downto 0);
+    signal mem_data_out   : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal reg_a_out      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal reg_b_out      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal reg_a_alu      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal reg_b_alu      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal pc_out         : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+
+    -- Señal nueva: salida de la ALU (antes estaba abierta)
+    signal alu_out        : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
 
     -- Señales para modo lento y programa cargado
     signal slow_mode_sig     : STD_LOGIC;
@@ -142,7 +148,7 @@ begin
     cpu_clk <= slow_clk when slow_mode_sig = '1' else clock;
 
     --------------------------------------------------------------------------
-    -- INSTANCIAS
+    -- INSTANCIAS (ahora todas a senales internas)
     --------------------------------------------------------------------------
     pc_instr: pc port map(
         clock  => cpu_clk,
@@ -151,7 +157,7 @@ begin
         oe     => pc_oe_sig,
         ld     => pc_ld_sig,
         input  => main_bus(3 downto 0),
-        output => main_bus(3 downto 0)
+        output => pc_out
     );
 
     cu_instr: control_unit port map(
@@ -176,7 +182,7 @@ begin
         oe            => mem_oe_sig,
         addr_in       => mem_addr,
         data_in       => mem_in_bus,
-        data_out      => main_bus,
+        data_out      => mem_data_out,
         RxD           => RxD,
         slow_mode     => slow_mode_sig,
         program_ready => program_ready_sig
@@ -198,7 +204,7 @@ begin
         out_en     => reg_a_oe_sig,
         load       => reg_a_ld_sig,
         input      => main_bus,
-        output     => main_bus,
+        output     => reg_a_out,
         output_alu => reg_a_alu
     );
 
@@ -208,7 +214,7 @@ begin
         out_en     => reg_b_oe_sig,
         load       => reg_b_ld_sig,
         input      => main_bus,
-        output     => main_bus,
+        output     => reg_b_out,
         output_alu => reg_b_alu
     );
 
@@ -222,6 +228,7 @@ begin
         output_alu => op
     );
 
+    -- ALU ahora escribe a 'alu_out' (se incluira en el arbiter)
     alu_instr: alu port map(
         en         => alu_en_sig,
         op         => alu_op_sig,
@@ -229,16 +236,37 @@ begin
         reg_b_in   => reg_b_alu,
         carry_out  => open,
         zero_flag  => open,
-        result_out => main_bus
+        result_out => alu_out
     );
 
     -- Conexiones internas
     mem_addr        <= mar_mem_sig;
     mem_in_bus      <= main_bus;
     instr_out       <= instr_out_sig(7 downto 4);
-    main_bus(3 downto 0) <= instr_out_sig(3 downto 0) when instr_oe_sig = '1' else (others => 'Z');
 
-    -- Señales de control
+    -- Multiplexor del main_bus (sin Z). Prioridad:
+    -- ALU (cuando alu_en) > mem_oe > reg_a_oe > reg_b_oe > pc_oe > instr_oe > default (zeros)
+    bus_arbiter_proc: process(alu_en_sig, mem_oe_sig, reg_a_oe_sig, reg_b_oe_sig, pc_oe_sig, instr_oe_sig,
+                              alu_out, mem_data_out, reg_a_alu, reg_b_alu, pc_out, instr_out_sig)
+    begin
+        if alu_en_sig = '1' then
+            main_bus <= alu_out;
+        elsif mem_oe_sig = '1' then
+            main_bus <= mem_data_out;
+        elsif reg_a_oe_sig = '1' then
+            main_bus <= reg_a_alu;
+        elsif reg_b_oe_sig = '1' then
+            main_bus <= reg_b_alu;
+        elsif pc_oe_sig = '1' then
+            main_bus <= "0000" & pc_out;
+        elsif instr_oe_sig = '1' then
+            main_bus <= "0000" & instr_out_sig(3 downto 0);
+        else
+            main_bus <= (others => '0');
+        end if;
+    end process;
+
+    -- Senales de control (mapeo de bits del microcodigo)
     pc_en_sig     <= cu_out_sig(11);
     pc_ld_sig     <= cu_out_sig(10);
     pc_oe_sig     <= cu_out_sig(9);
