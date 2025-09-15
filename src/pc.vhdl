@@ -15,7 +15,7 @@ entity pc is
 end entity;
 
 architecture behave of pc is
-    signal count: unsigned(3 downto 0) := "0000";
+    signal count: unsigned(3 downto 0) := (others => '0');
 begin
     process(clock, reset)
     begin
@@ -30,5 +30,6 @@ begin
         end if;
     end process;
 
-    output <= std_logic_vector(count) when oe = '1' else "ZZZZ";
+    -- Siempre conducido; el CPU selecciona si usarlo (oe).
+    output <= std_logic_vector(count);
 end behave;
