@@ -13,6 +13,9 @@ end entity;
 
 architecture behave of cpu is
 
+    --------------------------------------------------------------------------
+    -- COMPONENTES
+    --------------------------------------------------------------------------
     component pc is
         port(
             clock  : in  STD_LOGIC;
@@ -83,7 +86,9 @@ architecture behave of cpu is
         );
     end component;
 
-    -- SENALES INTERNAS
+    --------------------------------------------------------------------------
+    -- SEÑALES INTERNAS
+    --------------------------------------------------------------------------
     signal main_bus              : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
     signal cu_out_sig            : STD_LOGIC_VECTOR(16 downto 0);
     signal instr_out_sig         : STD_LOGIC_VECTOR(7 downto 0);
@@ -108,23 +113,25 @@ architecture behave of cpu is
     signal pc_out         : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
     signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
 
-    -- Senal nueva: salida de la ALU (antes estaba abierta)
     signal alu_out        : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
 
-    -- Senales para modo lento y programa cargado
+    -- Señales para modo lento y programa cargado
     signal slow_mode_sig     : STD_LOGIC;
     signal program_ready_sig : STD_LOGIC;
 
-    -- Divisor de reloj: 22 bits permiten contar hasta > 2_999_999
+    -- Divisor de reloj
     constant SLOW_WIDTH : natural := 22;
     constant SLOW_MAX   : unsigned(SLOW_WIDTH-1 downto 0) := to_unsigned(2999999, SLOW_WIDTH);
     signal slow_counter : unsigned(SLOW_WIDTH-1 downto 0) := (others => '0');
     signal slow_clk     : STD_LOGIC := '0';
     signal cpu_clk      : STD_LOGIC;
+    signal cu_clk       : STD_LOGIC;  -- ✅ nuevo, reemplaza "not cpu_clk"
 
 begin
 
-    -- Divisor de reloj (solo si slow_mode = '1')
+    --------------------------------------------------------------------------
+    -- Divisor de reloj
+    --------------------------------------------------------------------------
     process(clock, reset)
     begin
         if reset = '1' then
@@ -144,11 +151,11 @@ begin
         end if;
     end process;
 
-    -- Seleccion de reloj
     cpu_clk <= slow_clk when slow_mode_sig = '1' else clock;
+    cu_clk  <= not cpu_clk;  -- ✅ señal dedicada para la control_unit
 
     --------------------------------------------------------------------------
-    -- INSTANCIAS (ahora todas a senales internas)
+    -- INSTANCIAS
     --------------------------------------------------------------------------
     pc_instr: pc port map(
         clock  => cpu_clk,
@@ -161,7 +168,7 @@ begin
     );
 
     cu_instr: control_unit port map(
-        clock => not cpu_clk,
+        clock => cu_clk,   -- ✅ ya no es "not cpu_clk"
         reset => reset,
         instr => instr_out,
         do    => cu_out_sig
@@ -228,7 +235,6 @@ begin
         output_alu => op
     );
 
-    -- ALU ahora escribe a 'alu_out' (se incluira en el arbiter)
     alu_instr: alu port map(
         en         => alu_en_sig,
         op         => alu_op_sig,
@@ -239,13 +245,14 @@ begin
         result_out => alu_out
     );
 
+    --------------------------------------------------------------------------
     -- Conexiones internas
+    --------------------------------------------------------------------------
     mem_addr        <= mar_mem_sig;
     mem_in_bus      <= main_bus;
     instr_out       <= instr_out_sig(7 downto 4);
 
-    -- Multiplexor del main_bus (sin Z). Prioridad:
-    -- ALU (cuando alu_en) > mem_oe > reg_a_oe > reg_b_oe > pc_oe > instr_oe > default (zeros)
+    -- Multiplexor del bus principal
     bus_arbiter_proc: process(alu_en_sig, mem_oe_sig, reg_a_oe_sig, reg_b_oe_sig, pc_oe_sig, instr_oe_sig,
                               alu_out, mem_data_out, reg_a_alu, reg_b_alu, pc_out, instr_out_sig)
     begin
@@ -266,7 +273,9 @@ begin
         end if;
     end process;
 
-    -- Senales de control (mapeo de bits del microcodigo)
+    --------------------------------------------------------------------------
+    -- Señales de control
+    --------------------------------------------------------------------------
     pc_en_sig     <= cu_out_sig(11);
     pc_ld_sig     <= cu_out_sig(10);
     pc_oe_sig     <= cu_out_sig(9);
