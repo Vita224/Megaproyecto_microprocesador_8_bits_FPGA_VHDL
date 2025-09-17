@@ -89,7 +89,7 @@ architecture behave of cpu is
     --------------------------------------------------------------------------
     -- SEÑALES INTERNAS
     --------------------------------------------------------------------------
-    signal main_bus              : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal main_bus              : STD_LOGIC_VECTOR(7 downto 0);
     signal cu_out_sig            : STD_LOGIC_VECTOR(16 downto 0);
     signal instr_out_sig         : STD_LOGIC_VECTOR(7 downto 0);
     signal instr_out             : STD_LOGIC_VECTOR(3 downto 0);
@@ -105,15 +105,16 @@ architecture behave of cpu is
 
     signal mar_mem_sig    : STD_LOGIC_VECTOR(3 downto 0);
     signal mem_in_bus     : STD_LOGIC_VECTOR(7 downto 0);
-    signal mem_data_out   : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
-    signal reg_a_out      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
-    signal reg_b_out      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
-    signal reg_a_alu      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
-    signal reg_b_alu      : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
-    signal pc_out         : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
-    signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal mem_data_out   : STD_LOGIC_VECTOR(7 downto 0);
+    signal reg_a_out      : STD_LOGIC_VECTOR(7 downto 0);
+    signal reg_b_out      : STD_LOGIC_VECTOR(7 downto 0);
+    signal reg_a_alu      : STD_LOGIC_VECTOR(7 downto 0);
+    signal reg_b_alu      : STD_LOGIC_VECTOR(7 downto 0);
+    signal pc_out         : STD_LOGIC_VECTOR(3 downto 0);
+    signal pc_in          : STD_LOGIC_VECTOR(3 downto 0);  -- nueva señal
+    signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0);
 
-    signal alu_out        : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+    signal alu_out        : STD_LOGIC_VECTOR(7 downto 0);
 
     -- Señales para modo lento y programa cargado
     signal slow_mode_sig     : STD_LOGIC;
@@ -122,10 +123,10 @@ architecture behave of cpu is
     -- Divisor de reloj
     constant SLOW_WIDTH : natural := 22;
     constant SLOW_MAX   : unsigned(SLOW_WIDTH-1 downto 0) := to_unsigned(2999999, SLOW_WIDTH);
-    signal slow_counter : unsigned(SLOW_WIDTH-1 downto 0) := (others => '0');
+    signal slow_counter : unsigned(SLOW_WIDTH-1 downto 0);
     signal slow_clk     : STD_LOGIC := '0';
     signal cpu_clk      : STD_LOGIC;
-    signal cu_clk       : STD_LOGIC;  -- ✅ nuevo, reemplaza "not cpu_clk"
+    signal cu_clk       : STD_LOGIC;
 
 begin
 
@@ -152,7 +153,7 @@ begin
     end process;
 
     cpu_clk <= slow_clk when slow_mode_sig = '1' else clock;
-    cu_clk  <= not cpu_clk;  -- ✅ señal dedicada para la control_unit
+    cu_clk  <= not cpu_clk;
 
     --------------------------------------------------------------------------
     -- INSTANCIAS
@@ -163,12 +164,12 @@ begin
         en     => pc_en_sig and program_ready_sig,
         oe     => pc_oe_sig,
         ld     => pc_ld_sig,
-        input  => main_bus(3 downto 0),
+        input  => pc_in,   -- usa la nueva señal
         output => pc_out
     );
 
     cu_instr: control_unit port map(
-        clock => cu_clk,   -- ✅ ya no es "not cpu_clk"
+        clock => cu_clk,
         reset => reset,
         instr => instr_out,
         do    => cu_out_sig
@@ -248,9 +249,11 @@ begin
     --------------------------------------------------------------------------
     -- Conexiones internas
     --------------------------------------------------------------------------
-    mem_addr        <= mar_mem_sig;
-    mem_in_bus      <= main_bus;
-    instr_out       <= instr_out_sig(7 downto 4);
+    mem_addr   <= mar_mem_sig;
+    mem_in_bus <= main_bus;
+    instr_out  <= instr_out_sig(7 downto 4);
+
+    pc_in <= main_bus(3 downto 0);  -- 🔹 único punto donde se define pc_in
 
     -- Multiplexor del bus principal
     bus_arbiter_proc: process(alu_en_sig, mem_oe_sig, reg_a_oe_sig, reg_b_oe_sig, pc_oe_sig, instr_oe_sig,
