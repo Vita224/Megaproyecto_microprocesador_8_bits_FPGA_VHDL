@@ -129,6 +129,12 @@ architecture behave of cpu is
     signal slow_clk     : STD_LOGIC;
     signal cpu_clk      : STD_LOGIC;
     signal cu_clk       : STD_LOGIC;
+    
+    signal dummy_instr_out : STD_LOGIC_VECTOR(7 downto 0);
+    signal dummy_op_out    : STD_LOGIC_VECTOR(7 downto 0);
+    signal dummy_carry : STD_LOGIC;
+    signal dummy_zero  : STD_LOGIC;
+
 
 begin
 
@@ -205,7 +211,7 @@ begin
         out_en     => instr_oe_sig,
         load       => instr_ld_sig,
         input      => main_bus,
-        output     => open,
+        output     => dummy_instr_out,
         output_alu => instr_out_sig
     );
 
@@ -235,7 +241,7 @@ begin
         out_en     => reg_op_oe_sig,
         load       => reg_op_ld_sig,
         input      => main_bus,
-        output     => open,
+        output     => dummy_op_out,
         output_alu => op
     );
 
@@ -244,8 +250,8 @@ begin
         op         => alu_op_sig,
         reg_a_in   => reg_a_alu,
         reg_b_in   => reg_b_alu,
-        carry_out  => open,
-        zero_flag  => open,
+        carry_out  => dummy_carry,
+        zero_flag  => dummy_zero,
         result_out => alu_out
     );
 
