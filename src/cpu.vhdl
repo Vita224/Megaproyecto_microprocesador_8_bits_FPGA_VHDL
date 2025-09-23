@@ -94,14 +94,14 @@ architecture behave of cpu is
     signal instr_out_sig         : STD_LOGIC_VECTOR(7 downto 0);
     signal instr_out             : STD_LOGIC_VECTOR(3 downto 0);
 
-    signal pc_en_sig, pc_oe_sig, pc_ld_sig         : STD_LOGIC;
-    signal mar_ld_sig                              : STD_LOGIC;
-    signal mem_ld_sig, mem_oe_sig                  : STD_LOGIC;
-    signal reg_a_ld_sig, reg_a_oe_sig              : STD_LOGIC;
-    signal reg_b_ld_sig, reg_b_oe_sig              : STD_LOGIC;
-    signal reg_op_ld_sig, reg_op_oe_sig            : STD_LOGIC;
-    signal instr_ld_sig, instr_oe_sig              : STD_LOGIC;
-    signal alu_en_sig, alu_op_sig                  : STD_LOGIC;
+    signal pc_en_sig, pc_oe_sig, pc_ld_sig : STD_LOGIC;
+    signal mar_ld_sig                      : STD_LOGIC;
+    signal mem_ld_sig, mem_oe_sig          : STD_LOGIC;
+    signal reg_a_ld_sig, reg_a_oe_sig      : STD_LOGIC;
+    signal reg_b_ld_sig, reg_b_oe_sig      : STD_LOGIC;
+    signal reg_op_ld_sig, reg_op_oe_sig    : STD_LOGIC;
+    signal instr_ld_sig, instr_oe_sig      : STD_LOGIC;
+    signal alu_en_sig, alu_op_sig          : STD_LOGIC;
 
     signal mar_mem_sig    : STD_LOGIC_VECTOR(3 downto 0);
     signal mem_in_bus     : STD_LOGIC_VECTOR(7 downto 0);
@@ -111,7 +111,6 @@ architecture behave of cpu is
     signal reg_a_alu      : STD_LOGIC_VECTOR(7 downto 0);
     signal reg_b_alu      : STD_LOGIC_VECTOR(7 downto 0);
     signal pc_out         : STD_LOGIC_VECTOR(3 downto 0);
-    signal pc_in          : STD_LOGIC_VECTOR(3 downto 0);
     signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0);
 
     signal alu_out        : STD_LOGIC_VECTOR(7 downto 0);
@@ -120,12 +119,16 @@ architecture behave of cpu is
     signal slow_mode_sig     : STD_LOGIC;
     signal program_ready_sig : STD_LOGIC;
 
+    -- Señal intermedia para habilitar PC
+    signal pc_enable : STD_LOGIC;
+
     -- Divisor de reloj
     constant SLOW_WIDTH : natural := 22;
     constant SLOW_MAX   : unsigned(SLOW_WIDTH-1 downto 0) := to_unsigned(2999999, SLOW_WIDTH);
     signal slow_counter : unsigned(SLOW_WIDTH-1 downto 0);
-    signal slow_clk     : STD_LOGIC := '0';
+    signal slow_clk     : STD_LOGIC;
     signal cpu_clk      : STD_LOGIC;
+    signal cu_clk       : STD_LOGIC;
 
 begin
 
@@ -143,7 +146,7 @@ begin
                     slow_counter <= (others => '0');
                     slow_clk     <= not slow_clk;
                 else
-                    slow_counter <= slow_counter + to_unsigned(1, SLOW_WIDTH);
+                    slow_counter <= slow_counter + 1;
                 end if;
             else
                 slow_clk <= clock;
@@ -151,7 +154,9 @@ begin
         end if;
     end process;
 
-    cpu_clk <= slow_clk when slow_mode_sig = '1' else clock;
+    cpu_clk   <= slow_clk when slow_mode_sig = '1' else clock;
+    cu_clk    <= not cpu_clk;
+    pc_enable <= pc_en_sig and program_ready_sig;
 
     --------------------------------------------------------------------------
     -- INSTANCIAS
@@ -159,15 +164,15 @@ begin
     pc_instr: pc port map(
         clock  => cpu_clk,
         reset  => reset,
-        en     => pc_en_sig and program_ready_sig,
+        en     => pc_enable,
         oe     => pc_oe_sig,
         ld     => pc_ld_sig,
-        input  => pc_in,
+        input  => main_bus(3 downto 0),
         output => pc_out
     );
 
     cu_instr: control_unit port map(
-        clock => cpu_clk,   -- 🔹 usamos el mismo reloj
+        clock => cu_clk,
         reset => reset,
         instr => instr_out,
         do    => cu_out_sig
@@ -250,8 +255,6 @@ begin
     mem_addr   <= mar_mem_sig;
     mem_in_bus <= main_bus;
     instr_out  <= instr_out_sig(7 downto 4);
-
-    pc_in <= main_bus(3 downto 0);
 
     -- Multiplexor del bus principal
     bus_arbiter_proc: process(alu_en_sig, mem_oe_sig, reg_a_oe_sig, reg_b_oe_sig, pc_oe_sig, instr_oe_sig,
