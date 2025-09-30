@@ -6,8 +6,8 @@ entity mar is
         clock: in STD_LOGIC;
         reset: in STD_LOGIC;
         load: in STD_LOGIC;
-        input: in STD_LOGIC_VECTOR(3 downto 0);
-        output: out STD_LOGIC_VECTOR(3 downto 0)
+        data_in: in STD_LOGIC_VECTOR(3 downto 0);
+        data_out: out STD_LOGIC_VECTOR(3 downto 0)
     );
 end entity;
 
@@ -20,10 +20,10 @@ begin
             stored_value <= (others => '0');
         elsif rising_edge(clock) then
             if load = '1' then
-                stored_value <= input;
+                stored_value <= data_in;
             end if;    
         end if;
     end process;
 
-    output <= stored_value;
+    data_out <= stored_value;
 end behave;
