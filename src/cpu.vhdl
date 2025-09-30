@@ -9,22 +9,22 @@ entity cpu is
         RxD   : in  STD_LOGIC;
         op    : out STD_LOGIC_VECTOR(7 downto 0)
     );
-end entity cpu;
+end entity;
 
 architecture behave of cpu is
 
     --------------------------------------------------------------------------
-    -- COMPONENTES (renombrados "input/output" -> "data_in/data_out")
+    -- COMPONENTES
     --------------------------------------------------------------------------
     component pc is
         port(
-            clock   : in  STD_LOGIC;
-            reset   : in  STD_LOGIC;
-            en      : in  STD_LOGIC;
-            oe      : in  STD_LOGIC;
-            ld      : in  STD_LOGIC;
-            data_in : in  STD_LOGIC_VECTOR(3 downto 0);
-            data_out: out STD_LOGIC_VECTOR(3 downto 0)
+            clock  : in  STD_LOGIC;
+            reset  : in  STD_LOGIC;
+            en     : in  STD_LOGIC;
+            oe     : in  STD_LOGIC;
+            ld     : in  STD_LOGIC;
+            data_in  : in  STD_LOGIC_VECTOR(3 downto 0);
+            data_out : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
@@ -34,14 +34,14 @@ architecture behave of cpu is
             reset      : in  STD_LOGIC;
             out_en     : in  STD_LOGIC;
             load       : in  STD_LOGIC;
-            data_in    : in  STD_LOGIC_VECTOR(7 downto 0);
-            data_out   : out STD_LOGIC_VECTOR(7 downto 0);
-            alu_out    : out STD_LOGIC_VECTOR(7 downto 0)
+            data_in      : in  STD_LOGIC_VECTOR(7 downto 0);
+            data_out     : out STD_LOGIC_VECTOR(7 downto 0);
+            alu_out : out STD_LOGIC_VECTOR(7 downto 0)
         );
     end component;
 
     component mem is
-        port(
+        Port (
             reset         : in  STD_LOGIC;
             clock         : in  STD_LOGIC;
             load          : in  STD_LOGIC;
@@ -57,23 +57,23 @@ architecture behave of cpu is
 
     component mar is
         port(
-            clock   : in  STD_LOGIC;
-            reset   : in  STD_LOGIC;
-            load    : in  STD_LOGIC;
-            data_in : in  STD_LOGIC_VECTOR(3 downto 0);
-            data_out: out STD_LOGIC_VECTOR(3 downto 0)
+            clock  : in  STD_LOGIC;
+            reset  : in  STD_LOGIC;
+            load   : in  STD_LOGIC;
+            data_in  : in  STD_LOGIC_VECTOR(3 downto 0);
+            data_out : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
     component alu is
         port(
-            en         : in  STD_LOGIC;
-            op         : in  STD_LOGIC;
-            reg_a_in   : in  STD_LOGIC_VECTOR(7 downto 0);
-            reg_b_in   : in  STD_LOGIC_VECTOR(7 downto 0);
-            carry_out  : out STD_LOGIC;
-            zero_flag  : out STD_LOGIC;
-            result_out : out STD_LOGIC_VECTOR(7 downto 0)
+            en        : in  STD_LOGIC;
+            op        : in  STD_LOGIC;
+            reg_a_in  : in  STD_LOGIC_VECTOR(7 downto 0);
+            reg_b_in  : in  STD_LOGIC_VECTOR(7 downto 0);
+            carry_out : out STD_LOGIC;
+            zero_flag : out STD_LOGIC;
+            result_out: out STD_LOGIC_VECTOR(7 downto 0)
         );
     end component;
 
@@ -87,7 +87,7 @@ architecture behave of cpu is
     end component;
 
     --------------------------------------------------------------------------
-    -- SEÑALES INTERNAS (SIN CAMBIOS)
+    -- SEÑALES INTERNAS
     --------------------------------------------------------------------------
     signal main_bus              : STD_LOGIC_VECTOR(7 downto 0);
     signal cu_out_sig            : STD_LOGIC_VECTOR(16 downto 0);
@@ -114,14 +114,17 @@ architecture behave of cpu is
     signal mem_addr       : STD_LOGIC_VECTOR(3 downto 0);
 
     signal alu_out        : STD_LOGIC_VECTOR(7 downto 0);
+
+    -- Señales para modo lento y programa cargado
     signal slow_mode_sig     : STD_LOGIC;
     signal program_ready_sig : STD_LOGIC;
 
+    -- Señal intermedia para habilitar PC
     signal pc_enable : STD_LOGIC;
 
+    -- Divisor de reloj
     constant SLOW_WIDTH : natural := 22;
-    constant SLOW_MAX   : unsigned(SLOW_WIDTH-1 downto 0) :=
-                          to_unsigned(2999999, SLOW_WIDTH);
+    constant SLOW_MAX   : unsigned(SLOW_WIDTH-1 downto 0) := to_unsigned(2999999, SLOW_WIDTH);
     signal slow_counter : unsigned(SLOW_WIDTH-1 downto 0);
     signal slow_clk     : STD_LOGIC;
     signal cpu_clk      : STD_LOGIC;
@@ -129,13 +132,13 @@ architecture behave of cpu is
     
     signal dummy_instr_out : STD_LOGIC_VECTOR(7 downto 0);
     signal dummy_op_out    : STD_LOGIC_VECTOR(7 downto 0);
-    signal dummy_carry     : STD_LOGIC;
-    signal dummy_zero      : STD_LOGIC;
+    signal dummy_carry : STD_LOGIC;
+    signal dummy_zero  : STD_LOGIC;
 
 begin
 
     --------------------------------------------------------------------------
-    -- Divisor de reloj (igual que antes)
+    -- Divisor de reloj
     --------------------------------------------------------------------------
     process(clock, reset)
     begin
@@ -161,117 +164,106 @@ begin
     pc_enable <= pc_en_sig and program_ready_sig;
 
     --------------------------------------------------------------------------
-    -- INSTANCIAS ACTUALIZADAS (solo cambiaron los nombres locales)
+    -- INSTANCIAS
     --------------------------------------------------------------------------
-    pc_instr: pc
-        port map(
-            clock   => cpu_clk,
-            reset   => reset,
-            en      => pc_enable,
-            oe      => pc_oe_sig,
-            ld      => pc_ld_sig,
-            data_in => main_bus(3 downto 0),
-            data_out=> pc_out
-        );
+    pc_instr: pc port map(
+        clock  => cpu_clk,
+        reset  => reset,
+        en     => pc_enable,
+        oe     => pc_oe_sig,
+        ld     => pc_ld_sig,
+        data_in  => main_bus(3 downto 0),
+        data_out => pc_out
+    );
 
-    cu_instr: control_unit
-        port map(
-            clock => cu_clk,
-            reset => reset,
-            instr => instr_out,
-            do    => cu_out_sig
-        );
+    cu_instr: control_unit port map(
+        clock => cu_clk,
+        reset => reset,
+        instr => instr_out,
+        do    => cu_out_sig
+    );
 
-    mar_instr: mar
-        port map(
-            clock   => cpu_clk,
-            reset   => reset,
-            load    => mar_ld_sig,
-            data_in => main_bus(3 downto 0),
-            data_out=> mar_mem_sig
-        );
+    mar_instr: mar port map(
+        clock  => cpu_clk,
+        reset  => reset,
+        load   => mar_ld_sig,
+        data_in  => main_bus(3 downto 0),
+        data_out => mar_mem_sig
+    );
 
-    mem_instr: mem
-        port map(
-            reset         => reset,
-            clock         => clock,
-            load          => mem_ld_sig,
-            oe            => mem_oe_sig,
-            addr_in       => mem_addr,
-            data_in       => mem_in_bus,
-            data_out      => mem_data_out,
-            RxD           => RxD,
-            slow_mode     => slow_mode_sig,
-            program_ready => program_ready_sig
-        );
+    mem_instr: mem port map(
+        reset         => reset,
+        clock         => clock,
+        load          => mem_ld_sig,
+        oe            => mem_oe_sig,
+        addr_in       => mem_addr,
+        data_in       => mem_in_bus,
+        data_out      => mem_data_out,
+        RxD           => RxD,
+        slow_mode     => slow_mode_sig,
+        program_ready => program_ready_sig
+    );
 
-    instr_reg_instr: reg
-        port map(
-            clock    => cpu_clk,
-            reset    => reset,
-            out_en   => instr_oe_sig,
-            load     => instr_ld_sig,
-            data_in  => main_bus,
-            data_out => dummy_instr_out,
-            alu_out  => instr_out_sig
-        );
+    instr_reg_instr: reg port map(
+        clock      => cpu_clk,
+        reset      => reset,
+        out_en     => instr_oe_sig,
+        load       => instr_ld_sig,
+        data_in      => main_bus,
+        data_out     => dummy_instr_out,
+        alu_out => instr_out_sig
+    );
 
-    reg_A_instr: reg
-        port map(
-            clock    => cpu_clk,
-            reset    => reset,
-            out_en   => reg_a_oe_sig,
-            load     => reg_a_ld_sig,
-            data_in  => main_bus,
-            data_out => reg_a_out,
-            alu_out  => reg_a_alu
-        );
+    reg_A_instr: reg port map(
+        clock      => cpu_clk,
+        reset      => reset,
+        out_en     => reg_a_oe_sig,
+        load       => reg_a_ld_sig,
+        data_in      => main_bus,
+        data_out     => reg_a_out,
+        alu_out => reg_a_alu
+    );
 
-    reg_B_instr: reg
-        port map(
-            clock    => cpu_clk,
-            reset    => reset,
-            out_en   => reg_b_oe_sig,
-            load     => reg_b_ld_sig,
-            data_in  => main_bus,
-            data_out => reg_b_out,
-            alu_out  => reg_b_alu
-        );
+    reg_B_instr: reg port map(
+        clock      => cpu_clk,
+        reset      => reset,
+        out_en     => reg_b_oe_sig,
+        load       => reg_b_ld_sig,
+        data_in      => main_bus,
+        data_out     => reg_b_out,
+        alu_out => reg_b_alu
+    );
 
-    reg_op_instr: reg
-        port map(
-            clock    => cpu_clk,
-            reset    => reset,
-            out_en   => reg_op_oe_sig,
-            load     => reg_op_ld_sig,
-            data_in  => main_bus,
-            data_out => dummy_op_out,
-            alu_out  => op
-        );
+    reg_op_instr: reg port map(
+        clock      => cpu_clk,
+        reset      => reset,
+        out_en     => reg_op_oe_sig,
+        load       => reg_op_ld_sig,
+        data_in      => main_bus,
+        data_out     => dummy_op_out,
+        alu_out => op
+    );
 
-    alu_instr: alu
-        port map(
-            en         => alu_en_sig,
-            op         => alu_op_sig,
-            reg_a_in   => reg_a_alu,
-            reg_b_in   => reg_b_alu,
-            carry_out  => dummy_carry,
-            zero_flag  => dummy_zero,
-            result_out => alu_out
-        );
+    alu_instr: alu port map(
+        en         => alu_en_sig,
+        op         => alu_op_sig,
+        reg_a_in   => reg_a_alu,
+        reg_b_in   => reg_b_alu,
+        carry_out  => dummy_carry,
+        zero_flag  => dummy_zero,
+        result_out => alu_out
+    );
 
     --------------------------------------------------------------------------
-    -- Conexionado interno (sin cambios)
+    -- Conexiones internas
     --------------------------------------------------------------------------
     mem_addr   <= mar_mem_sig;
     mem_in_bus <= main_bus;
     instr_out  <= instr_out_sig(7 downto 4);
 
-    bus_arbiter_proc: process(
-        alu_en_sig, mem_oe_sig, reg_a_oe_sig, reg_b_oe_sig,
-        pc_oe_sig, instr_oe_sig, alu_out, mem_data_out,
-        reg_a_alu, reg_b_alu, pc_out, instr_out_sig
-    )
+    -- Multiplexor del bus principal
+    bus_arbiter_proc: process(alu_en_sig, mem_oe_sig, reg_a_oe_sig, reg_b_oe_sig, pc_oe_sig, instr_oe_sig,
+                              alu_out, mem_data_out, reg_a_alu, reg_b_alu, pc_out, instr_out_sig)
     begin
         if alu_en_sig = '1' then
             main_bus <= alu_out;
@@ -290,6 +282,9 @@ begin
         end if;
     end process;
 
+    --------------------------------------------------------------------------
+    -- Señales de control
+    --------------------------------------------------------------------------
     pc_en_sig     <= cu_out_sig(11);
     pc_ld_sig     <= cu_out_sig(10);
     pc_oe_sig     <= cu_out_sig(9);
@@ -307,4 +302,4 @@ begin
     reg_op_ld_sig <= cu_out_sig(15);
     reg_op_oe_sig <= cu_out_sig(14);
 
-end architecture behave;
+end behave;
