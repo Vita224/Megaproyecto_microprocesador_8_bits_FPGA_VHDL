@@ -9,8 +9,8 @@ entity pc is
         en: in STD_LOGIC;
         oe: in STD_LOGIC;
         ld: in STD_LOGIC;
-        input: in STD_LOGIC_VECTOR(3 downto 0);
-        output: out STD_LOGIC_VECTOR(3 downto 0)
+        data_in: in STD_LOGIC_VECTOR(3 downto 0);
+        data_out: out STD_LOGIC_VECTOR(3 downto 0)
     );
 end entity;
 
@@ -23,7 +23,7 @@ begin
             count <= (others => '0');
         elsif rising_edge(clock) then
             if ld = '1' then
-                count <= unsigned(input);
+                count <= unsigned(data_in);
             elsif en = '1' then
                 count <= count + 1;
             end if;
@@ -31,5 +31,5 @@ begin
     end process;
 
     -- Siempre conducido; el CPU selecciona si usarlo (oe).
-    output <= std_logic_vector(count);
+    data_out <= std_logic_vector(count);
 end behave;
