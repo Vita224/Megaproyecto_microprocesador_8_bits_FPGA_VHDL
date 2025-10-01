@@ -18,25 +18,25 @@ architecture behave of cpu is
     --------------------------------------------------------------------------
     component pc is
         port(
-            clock  : in  STD_LOGIC;
-            reset  : in  STD_LOGIC;
-            en     : in  STD_LOGIC;
-            oe     : in  STD_LOGIC;
-            ld     : in  STD_LOGIC;
-            data_in  : in  STD_LOGIC_VECTOR(3 downto 0);
-            data_out : out STD_LOGIC_VECTOR(3 downto 0)
+            clock  		: in  STD_LOGIC;
+            reset  		: in  STD_LOGIC;
+            en     		: in  STD_LOGIC;
+            oe     		: in  STD_LOGIC;
+            ld     		: in  STD_LOGIC;
+            data_in  	: in  STD_LOGIC_VECTOR(3 downto 0);
+            data_out 	: out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
     component reg is
         port(
-            clock      : in  STD_LOGIC;
-            reset      : in  STD_LOGIC;
-            out_en     : in  STD_LOGIC;
-            load       : in  STD_LOGIC;
-            data_in      : in  STD_LOGIC_VECTOR(7 downto 0);
-            data_out     : out STD_LOGIC_VECTOR(7 downto 0);
-            alu_out : out STD_LOGIC_VECTOR(7 downto 0)
+            clock      		: in  STD_LOGIC;
+            reset      		: in  STD_LOGIC;
+            out_en     		: in  STD_LOGIC;
+            load       		: in  STD_LOGIC;
+            data_in      	: in  STD_LOGIC_VECTOR(7 downto 0);
+            data_out     	: out STD_LOGIC_VECTOR(7 downto 0);
+            alu_out 		: out STD_LOGIC_VECTOR(7 downto 0)
         );
     end component;
 
@@ -57,11 +57,11 @@ architecture behave of cpu is
 
     component mar is
         port(
-            clock  : in  STD_LOGIC;
-            reset  : in  STD_LOGIC;
-            load   : in  STD_LOGIC;
-            data_in  : in  STD_LOGIC_VECTOR(3 downto 0);
-            data_out : out STD_LOGIC_VECTOR(3 downto 0)
+            clock  		: in  STD_LOGIC;
+            reset  		: in  STD_LOGIC;
+            load   		: in  STD_LOGIC;
+            data_in  	: in  STD_LOGIC_VECTOR(3 downto 0);
+            data_out 	: out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
@@ -167,13 +167,13 @@ begin
     -- INSTANCIAS
     --------------------------------------------------------------------------
     pc_instr: pc port map(
-        clock  => cpu_clk,
-        reset  => reset,
-        en     => pc_enable,
-        oe     => pc_oe_sig,
-        ld     => pc_ld_sig,
-        data_in  => main_bus(3 downto 0),
-        data_out => pc_out
+        clock  		=> cpu_clk,
+        reset  		=> reset,
+        en     		=> pc_enable,
+        oe     		=> pc_oe_sig,
+        ld     		=> pc_ld_sig,
+        data_in  	=> main_bus(3 downto 0),
+        data_out 	=> pc_out
     );
 
     cu_instr: control_unit port map(
@@ -184,11 +184,11 @@ begin
     );
 
     mar_instr: mar port map(
-        clock  => cpu_clk,
-        reset  => reset,
-        load   => mar_ld_sig,
-        data_in  => main_bus(3 downto 0),
-        data_out => mar_mem_sig
+        clock  		=> cpu_clk,
+        reset  		=> reset,
+        load   		=> mar_ld_sig,
+        data_in  	=> main_bus(3 downto 0),
+        data_out 	=> mar_mem_sig
     );
 
     mem_instr: mem port map(
@@ -205,43 +205,43 @@ begin
     );
 
     instr_reg_instr: reg port map(
-        clock      => cpu_clk,
-        reset      => reset,
-        out_en     => instr_oe_sig,
-        load       => instr_ld_sig,
-        data_in      => main_bus,
-        data_out     => dummy_instr_out,
-        alu_out => instr_out_sig
+        clock      	=> cpu_clk,
+        reset      	=> reset,
+        out_en     	=> instr_oe_sig,
+        load       	=> instr_ld_sig,
+        data_in     => main_bus,
+        data_out    => dummy_instr_out,
+        alu_out 	=> instr_out_sig
     );
 
     reg_A_instr: reg port map(
-        clock      => cpu_clk,
-        reset      => reset,
-        out_en     => reg_a_oe_sig,
-        load       => reg_a_ld_sig,
-        data_in      => main_bus,
-        data_out     => reg_a_out,
-        alu_out => reg_a_alu
+        clock      	=> cpu_clk,
+        reset      	=> reset,
+        out_en     	=> reg_a_oe_sig,
+        load       	=> reg_a_ld_sig,
+        data_in     => main_bus,
+        data_out    => reg_a_out,
+        alu_out 	=> reg_a_alu
     );
 
     reg_B_instr: reg port map(
-        clock      => cpu_clk,
-        reset      => reset,
-        out_en     => reg_b_oe_sig,
-        load       => reg_b_ld_sig,
-        data_in      => main_bus,
-        data_out     => reg_b_out,
-        alu_out => reg_b_alu
+        clock      	=> cpu_clk,
+        reset      	=> reset,
+        out_en     	=> reg_b_oe_sig,
+        load       	=> reg_b_ld_sig,
+        data_in     => main_bus,
+        data_out    => reg_b_out,
+        alu_out 	=> reg_b_alu
     );
 
     reg_op_instr: reg port map(
-        clock      => cpu_clk,
-        reset      => reset,
-        out_en     => reg_op_oe_sig,
-        load       => reg_op_ld_sig,
-        data_in      => main_bus,
-        data_out     => dummy_op_out,
-        alu_out => op
+        clock      	=> cpu_clk,
+        reset      	=> reset,
+        out_en     	=> reg_op_oe_sig,
+        load       	=> reg_op_ld_sig,
+        data_in     => main_bus,
+        data_out    => dummy_op_out,
+        alu_out 	=> op
     );
 
     alu_instr: alu port map(
@@ -285,6 +285,10 @@ begin
     --------------------------------------------------------------------------
     -- Señales de control
     --------------------------------------------------------------------------
+	reg_op_ld_sig <= cu_out_sig(15);
+    reg_op_oe_sig <= cu_out_sig(14);
+	alu_op_sig    <= cu_out_sig(13);
+	alu_en_sig    <= cu_out_sig(12);
     pc_en_sig     <= cu_out_sig(11);
     pc_ld_sig     <= cu_out_sig(10);
     pc_oe_sig     <= cu_out_sig(9);
@@ -297,9 +301,5 @@ begin
     reg_b_oe_sig  <= cu_out_sig(2);
     instr_ld_sig  <= cu_out_sig(1);
     instr_oe_sig  <= cu_out_sig(0);
-    alu_en_sig    <= cu_out_sig(12);
-    alu_op_sig    <= cu_out_sig(13);
-    reg_op_ld_sig <= cu_out_sig(15);
-    reg_op_oe_sig <= cu_out_sig(14);
 
 end behave;
